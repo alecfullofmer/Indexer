@@ -1,0 +1,6 @@
+package clientGUI;
+
+public interface DrawListener {
+	
+	void originChanged(int w_newOriginX, int w_newOriginY);
+}

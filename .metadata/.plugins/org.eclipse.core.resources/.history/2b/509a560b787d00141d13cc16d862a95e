@@ -1,0 +1,348 @@
+package client;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
+import batch.BatchState;
+import clientGUI.DownloadBatch;
+import clientGUI.DrawingComponent;
+import clientGUI.DrawingListener;
+import clientGUI.Indexer;
+import clientGUI.LoginFrame;
+import clientGUI.MyTable;
+import clientGUI.TableModel;
+import client_communicator.DownloadBatch_params;
+import client_communicator.DownloadBatch_result;
+import client_communicator.GetSampleImage_params;
+import client_communicator.GetSampleImage_result;
+import client_communicator.ValidateUser_Params;
+import client_communicator.ValidateUser_Result;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+public class ClientFacade {
+	
+	private LoginFrame login;
+	private Indexer indexer;
+	private DownloadBatch batchFrame;
+	private String host;
+	private String port;
+	private String username;
+	private String password;
+	private communication comm;
+	private DrawingComponent draw;
+	private BatchState batchState;
+	private boolean highlights = false;
+	private boolean inverted = false;
+	
+	public ClientFacade(DownloadBatch batch, LoginFrame log, Indexer index, String host, String port)
+	{
+		this.batchFrame = batch;
+		this.login = log;
+		this.indexer = index;
+		this.host = host;
+		this.port = port;
+		batchState = new BatchState(this);
+		
+		
+		login.setVisible(true);
+		comm = new communication(host, port);
+		
+		
+		login.blogin.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e) 
+			{
+				
+				ValidateUser_Params params = new ValidateUser_Params();
+				username = login.getUserText();
+				params.setUsername(username);
+				password = login.getPassText();
+				params.setPassword(password);
+				ValidateUser_Result result = comm.ValidateUser(params);
+				if(result != null && result.getInvalid() == null)
+				{
+					String message = "Welcome" + result.getFirst() + " " + result.getLast()
+									+ ".'\n'" + "You have indexed " + result.getRecords() +
+									" records.";
+					JOptionPane.showMessageDialog(null, message);
+					login.setVisible(false);
+					
+//====================Look for users file and set all their values in the batch state and WIndow=========================					
+					try{
+						XStream xStream = new XStream(new DomDriver());
+						InputStream inFile = new BufferedInputStream(new FileInputStream(username + ".xml"));
+						batchState = (BatchState)xStream.fromXML(inFile);
+					}
+					catch (Exception h){
+						indexer.setVisible(true);
+					}
+					
+					
+					
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "Invalid Username or Password");
+				}
+			}
+			
+		});
+		login.exit.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				login.setVisible(false);
+			}
+			
+		});
+		indexer.downloadBatch.addActionListener(new ActionListener()
+		{
+
+			@SuppressWarnings("deprecation")
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				batchFrame.setVisible(true);
+				indexer.disable();
+			}
+			
+		});
+		
+		batchFrame.addWindowListener(new WindowAdapter(){
+			
+			public void windowClosing(WindowEvent e)
+			{
+				indexer.enable();
+			}
+		});
+		
+		batchFrame.download.addActionListener(new ActionListener()
+		{
+
+			@SuppressWarnings("deprecation")
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int projectID = batchFrame.projectList.getSelectedIndex();
+				DownloadBatch_params params = new DownloadBatch_params();
+				params.setPassword(password);
+				params.setProject_id(projectID);
+				params.setUser(username);
+				
+				DownloadBatch_result result = comm.DownloadBatch(params);
+				if(result != null)
+				{
+					
+					String tempFile = result.getBatch().getImageFilePath();
+					String file = "Records/" + tempFile;
+					draw = new DrawingComponent(file);
+					indexer.imageView.add(draw, BorderLayout.CENTER);
+					indexer.imageView.revalidate();
+					indexer.imageView.repaint();
+					TableModel model = new TableModel(result, batchState);
+					
+					MyTable table = new MyTable(model);
+					table.setRowHeight(20);
+					
+					indexer.tablePanel.scroll.getViewport().add(table);
+					indexer.tablePanel.tableEntry.revalidate();
+					
+					indexer.enable();
+					batchFrame.setVisible(false);
+					batchState.setBatchResult(result);
+					
+					
+					
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "Download Failed");
+				}
+			}
+			
+		});
+		
+		batchFrame.cancel.addActionListener(new ActionListener()
+		{
+
+			@SuppressWarnings("deprecation")
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				batchFrame.setVisible(false);
+				indexer.enable();
+			}
+			
+		});
+		
+		batchFrame.viewSample.addActionListener(new ActionListener()
+		{
+
+			@SuppressWarnings("deprecation")
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int projectID = batchFrame.projectList.getSelectedIndex();
+				GetSampleImage_params params = new GetSampleImage_params();
+				params.setProject_id(projectID);
+				GetSampleImage_result result = comm.GetSampleImage(params);
+				
+				String url = "Records/" + result.getString_url();
+				
+				File input = new File(url);
+				BufferedImage image;
+				try {
+					image = ImageIO.read(input);
+					BufferedImage resizedImage = resize(image,600,500);
+					final JFrame f = new JFrame();
+					
+					ImageIcon icon = new ImageIcon(resizedImage);
+				
+					JPanel j = new JPanel();
+					j.add(new JLabel(icon));
+					j.revalidate();
+					f.add(new JScrollPane(j));
+					f.setPreferredSize(new Dimension(700, 600));
+					f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+					f.setLocation(400, 20);
+					f.setTitle("Sample Image");
+					JButton close = new JButton("Close");
+					JPanel buttonPanel = new JPanel();
+					buttonPanel.add(close);
+					f.add(buttonPanel, BorderLayout.SOUTH);
+					f.pack();
+					f.setResizable(false);
+					
+					batchFrame.disable();
+					f.setVisible(true);
+					
+					close.addActionListener(new ActionListener(){
+
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							f.dispose();
+							batchFrame.enable();
+						}
+						
+					});
+					
+					f.addWindowListener(new WindowAdapter()
+					{
+						public void windowClosing(WindowEvent e)
+						{
+							batchFrame.enable();
+						}
+					});
+					
+					
+					
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				
+				
+			}
+			
+		});
+		indexer.buttons.zoomIn.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+			
+				draw.zoomIn();
+			}
+			
+		});
+		indexer.buttons.zoomOut.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+				draw.zoomOut();
+				
+			}
+			
+		});
+		
+		indexer.logout.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+//===================SET BATCH STATE VARIABLES====================================================				
+				batchState.setLocationOnScreen(indexer.getLocation());
+				batchState.setWindowHeight(indexer.getHeight());
+				batchState.setWindowWidth(indexer.getWidth());
+				batchState.setHorizontalSplitPane(indexer.splitPane.getDividerLocation());
+				batchState.setVerticalSplitPane(indexer.tablePanel.splitPane.getDividerLocation());
+				batchState.setScale(draw.getScale());
+				batchState.setInverted(inverted);
+			    batchState.setHighlights(highlights);
+				
+				XStream xstream = new XStream(new DomDriver());
+				OutputStream outFile;
+				try {
+					outFile = new BufferedOutputStream(new FileOutputStream(username + ".xml"));
+					xstream.toXML(batchState, outFile);
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
+				
+			}
+			
+		});
+	}
+	
+	public void setOrigin(int w_newOriginX, int w_newOriginY) {
+		draw.setOrigin(w_newOriginX, w_newOriginY);
+	}
+	
+	public void addDrawingListener(DrawingListener listener) {
+		draw.addDrawingListener(listener);
+	}
+	
+	public static BufferedImage resize(BufferedImage image, int width, int height) {
+	    BufferedImage bi = new BufferedImage(width, height, BufferedImage.TRANSLUCENT);
+	    Graphics2D g2d = (Graphics2D) bi.createGraphics();
+	    g2d.addRenderingHints(new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY));
+	    g2d.drawImage(image, 0, 0, width, height, null);
+	    g2d.dispose();
+	    return bi;
+	}
+	
+	
+
+}

@@ -1,0 +1,28 @@
+package clientGUI;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+
+import javax.swing.JPanel;
+import javax.swing.JTable;
+
+
+
+public class JtablePanel extends JPanel {
+	
+	private JTable table;
+	private TableModel tableModel;
+	
+	public JtablePanel(int row, int col)
+	{
+		super();
+		
+		table = new JTable(row, col);
+		this.setLayout(new BorderLayout());
+		this.setPreferredSize(new Dimension(600, 400));
+		
+	}
+	
+	
+	
+}

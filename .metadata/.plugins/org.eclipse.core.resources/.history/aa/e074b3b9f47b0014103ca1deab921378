@@ -1,0 +1,95 @@
+package clientGUI;
+
+import javax.swing.table.AbstractTableModel;
+
+@SuppressWarnings("serial")
+public class TableModel extends AbstractTableModel {
+	public class ColorTableModel extends AbstractTableModel {
+
+		private String[][] table;
+
+		public ColorTableModel(String[][] table) {
+			this.table = table;
+		}
+
+		@Override
+		public int getColumnCount() {
+			return 5;
+		}
+
+		@Override
+		public String getColumnName(int column) {
+
+			return result;
+		}
+
+		@Override
+		public int getRowCount() {
+			return colorSchemes.size();
+		}
+
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			return true;
+		}
+
+		@Override
+		public Object getValueAt(int row, int column) {
+
+			Object result = null;
+
+			if (row >= 0 && row < getRowCount() && column >= 0
+					&& column < getColumnCount()) {
+
+				ColorScheme cs = colorSchemes.get(row);
+
+			return result;
+		}
+
+		@Override
+		public void setValueAt(Object value, int row, int column) {
+			
+			if (row >= 0 && row < getRowCount() && column >= 0
+					&& column < getColumnCount()) {
+
+				ColorScheme cs = colorSchemes.get(row);
+				
+				Color c = null;
+				if (column > 0) {
+					c = ColorUtils.fromString((String)value);
+					if (c == null) {
+						return;
+					}
+				}
+
+				switch (column) {
+				case 0:
+					cs.setName((String)value);
+					break;
+				case 1:
+					cs.setForeground(c);
+					break;
+				case 2:
+					cs.setBackground(c);
+					break;
+				case 3:
+					cs.setHighlight(c);
+					break;
+				case 4:
+					cs.setShadow(c);
+					break;
+				default:
+					assert false;
+					break;
+				}
+				
+				this.fireTableCellUpdated(row, column);
+				
+			} else {
+				throw new IndexOutOfBoundsException();
+			}		
+		}
+
+	}
+
+}

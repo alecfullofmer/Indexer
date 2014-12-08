@@ -1,0 +1,36 @@
+package clientGUI;
+
+import java.awt.event.KeyEvent;
+
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+
+import batch.BatchState;
+
+public class Indexer extends JFrame {
+
+	private BatchState batch;
+	private JMenuBar menuBar;
+	private JMenu menu;
+	
+	
+	public Indexer(BatchState batch)
+	{
+		super();
+		this.setTitle("Indexer");
+		this.batch = batch;
+		
+		this.setSize(800, 700);
+		this.setLocation(300, 480);
+		
+		menuBar = new JMenuBar();
+		menu = new JMenu("File");
+		menu.setMnemonic(KeyEvent.VK_A);
+		menu.getAccessibleContext().setAccessibleDescription("item");
+		menuBar.add(menu);
+		
+		this.add(menuBar);
+		
+	}
+}

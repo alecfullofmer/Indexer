@@ -1,0 +1,22 @@
+package batch;
+
+import client.ClientFacade;
+import client_communicator.DownloadBatch_result;
+
+
+public class BatchState {
+
+
+	private ClientFacade facade;
+	private DownloadBatch_result downloadResult; 
+	private String[][] table;
+	
+	public BatchState(ClientFacade facade, DownloadBatch_result result)
+	{
+		this.facade = facade;
+		downloadResult = result;
+		table = new String[downloadResult.getProj().getRecords_per_image()][downloadResult.getFields().size()];
+	}
+	
+	
+}

@@ -1,0 +1,60 @@
+package clientGUI;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+
+public class TablePanel extends JPanel{
+
+	private JTabbedPane left;
+	private JTabbedPane right;
+	public TableEntry tableEntry = new TableEntry();
+	public FormEntry formEntry = new FormEntry();
+	
+	public TablePanel()
+	{
+		super();
+		this.setLayout(new BorderLayout());
+		this.setPreferredSize(new Dimension(200, 100));
+		
+		left = new JTabbedPane();
+		left.setTabPlacement(JTabbedPane.TOP);
+		left.addTab("Table Entry", tableEntry);
+		left.addTab("Form Entry", formEntry);
+		
+		right = new JTabbedPane();
+		right.setTabPlacement(JTabbedPane.TOP);
+		right.addTab("Field Help", new FieldHelp());
+		right.addTab("Image Navigation", new ImageNav());
+		
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right);
+		splitPane.setDividerLocation(430);
+		this.add(splitPane);
+			
+		
+	}
+	
+	public JTabbedPane getLeft() {
+		return left;
+	}
+
+	public void setLeft(JTabbedPane left) {
+		this.left = left;
+	}
+
+	public JTabbedPane getRight() {
+		return right;
+	}
+
+	public void setRight(JTabbedPane right) {
+		this.right = right;
+	}
+
+	public void setTableEntry(JPanel table)
+	{
+		left.addTab("Table Entry", table);
+	}
+}

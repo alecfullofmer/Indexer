@@ -1,0 +1,65 @@
+package clientGUI;
+
+import java.awt.BorderLayout;
+import java.awt.event.KeyEvent;
+
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+
+@SuppressWarnings("serial")
+public class Indexer extends JFrame {
+
+	
+	private JMenuBar menuBar;
+	private JMenu menu;
+	public JMenuItem logout;
+	public JMenuItem downloadBatch;
+	public JMenuItem exit;
+	public ButtonPanel buttons;
+	public ImageView imageView;
+	private TablePanel tablePanel;
+	
+	public Indexer()
+	{
+		super();
+		this.setTitle("Indexer");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		this.setSize(900, 700);
+		this.setLocation(300, 20);
+	
+		menuBar = new JMenuBar();
+		this.setJMenuBar(menuBar);
+		menu = new JMenu("File");
+		menu.setMnemonic(KeyEvent.VK_A);
+		menuBar.add(menu);
+		
+		downloadBatch = new JMenuItem("Download Batch");
+		logout = new JMenuItem("Logout");
+		exit = new JMenuItem("Exit");
+		
+		menu.add(downloadBatch);
+		menu.add(logout);
+		menu.add(exit);
+		
+		buttons = new ButtonPanel();
+//		this.add(buttons);
+		
+		imageView = new ImageView();
+		tablePanel = new TablePanel();
+		
+		
+		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, imageView, tablePanel);
+		splitPane.setContinuousLayout(true);
+		JPanel rootPanel = new JPanel(new BorderLayout());
+		rootPanel.add(buttons, BorderLayout.NORTH);
+		rootPanel.add(splitPane, BorderLayout.CENTER);
+		this.add(rootPanel);
+			
+		
+	}
+}

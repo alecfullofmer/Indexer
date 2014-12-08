@@ -1,0 +1,14 @@
+package clientGUI;
+
+import javax.swing.JPanel;
+import javax.swing.JTable;
+
+
+
+public class JtablePanel extends JPanel {
+
+	private JTable table;
+	private TableModel tableModel;
+	
+	
+}

@@ -1,0 +1,24 @@
+package batch;
+
+import client.ClientFacade;
+import client_communicator.DownloadBatch_result;
+
+
+public class BatchState {
+
+
+	private ClientFacade facade;
+	private DownloadBatch_result downloadResult; 
+	
+	public BatchState(ClientFacade facade)
+	{
+		this.facade = facade;	
+	}
+	
+	public void setResult(DownloadBatch_result result)
+	{
+		downloadResult = result;
+	}
+	
+	
+}

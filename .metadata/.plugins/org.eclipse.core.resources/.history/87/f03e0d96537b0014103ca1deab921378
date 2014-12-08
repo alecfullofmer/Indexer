@@ -1,0 +1,61 @@
+package clientGUI;
+
+import java.awt.FlowLayout;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import client.communication;
+
+@SuppressWarnings("serial")
+public class DownloadBatch extends JFrame {
+	
+	private JLabel project;
+	public JComboBox projectList;
+	public JButton viewSample;
+	public JButton cancel;
+	public JButton download;
+	
+	public DownloadBatch()
+	{
+		
+	}
+	public DownloadBatch(String host, String port)
+	{
+		communication comm = new communication(host, port);
+		this.setProjects(comm.GetProjects().getProjects());
+		this.setTitle("Download Batch");
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setSize(400, 150);
+		this.setLocation(500, 280);
+		project = new JLabel("Project");
+//		this.setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+		this.setLayout(new FlowLayout());
+		this.add(project);
+		this.add(projectList);
+		
+		viewSample = new JButton("View Sample");
+		cancel = new JButton("Cancel");
+		download = new JButton("Download");
+		this.add(viewSample);
+		this.add(cancel);
+		this.add(download);
+		
+	}
+	
+	public void setProjects(List<String> proj)
+	{
+		
+		projectList = new JComboBox();
+		for(int i = 1; i< proj.size(); i = i+2)
+		{
+			String ss = proj.get(i).toString();
+			projectList.addItem(ss);
+		}
+		
+	}
+
+}

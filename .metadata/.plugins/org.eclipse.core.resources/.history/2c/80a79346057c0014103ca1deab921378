@@ -1,0 +1,115 @@
+package clientGUI;
+
+import javax.swing.table.AbstractTableModel;
+
+import batch.BatchState;
+import client_communicator.DownloadBatch_result;
+
+@SuppressWarnings("serial")
+public class TableModel extends AbstractTableModel {
+
+
+		private String[][] table;
+		private DownloadBatch_result result;
+		private BatchState batchState;
+		
+		public TableModel(DownloadBatch_result result, BatchState batch)
+		{
+			this.result = result;
+			batchState = batch;
+		}
+		
+		@Override
+		public int getColumnCount() {
+			return result.getFields().size() + 1;
+		}
+
+		@Override
+		public String getColumnName(int column) {
+
+			if(column == 0)
+			{
+				return "Record Number";
+			}
+			else
+			{
+				return result.getFields().get(column - 1).getTitle();
+			}
+		}
+
+		@Override
+		public int getRowCount() {
+			return result.getProj().getRecords_per_image();
+		}
+
+		@Override
+		public boolean isCellEditable(int row, int column) {
+			return true;
+		}
+
+		
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			// TODO Auto-generated method stub
+			return (String) getModel().getValueAt(rowIndex, columnIndex);
+		}
+
+//		@Override
+//		public Object getValueAt(int row, int column) {
+//
+//			Object result = null;
+//
+//			if (row >= 0 && row < getRowCount() && column >= 0
+//					&& column < getColumnCount()) {
+//
+//				ColorScheme cs = colorSchemes.get(row);
+//
+//			return result;
+//		}
+
+//		@Override
+//		public void setValueAt(Object value, int row, int column) {
+//			
+//			if (row >= 0 && row < getRowCount() && column >= 0
+//					&& column < getColumnCount()) {
+//
+//				ColorScheme cs = colorSchemes.get(row);
+//				
+//				Color c = null;
+//				if (column > 0) {
+//					c = ColorUtils.fromString((String)value);
+//					if (c == null) {
+//						return;
+//					}
+//				}
+//
+//				switch (column) {
+//				case 0:
+//					cs.setName((String)value);
+//					break;
+//				case 1:
+//					cs.setForeground(c);
+//					break;
+//				case 2:
+//					cs.setBackground(c);
+//					break;
+//				case 3:
+//					cs.setHighlight(c);
+//					break;
+//				case 4:
+//					cs.setShadow(c);
+//					break;
+//				default:
+//					assert false;
+//					break;
+//				}
+//				
+//				this.fireTableCellUpdated(row, column);
+//				
+//			} else {
+//				throw new IndexOutOfBoundsException();
+//			}		
+//		}
+//
+//	}
+
+}

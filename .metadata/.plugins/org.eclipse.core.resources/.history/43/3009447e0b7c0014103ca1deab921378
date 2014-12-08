@@ -1,0 +1,49 @@
+package batch;
+
+import client.ClientFacade;
+import client_communicator.DownloadBatch_result;
+
+
+public class BatchState {
+
+
+	private ClientFacade facade;
+	private DownloadBatch_result downloadResult; 
+	private String[][] table;
+	
+	public BatchState(ClientFacade facade)
+	{
+		this.facade = facade;
+	}
+	
+	public boolean checkValue(int row, String value)
+	{
+		//check the value agains the knownvalues in that field.
+		//
+		return true;
+	}
+	
+	public void setBatchResult(DownloadBatch_result result)
+	{
+		downloadResult = result;
+		table = new String[downloadResult.getProj().getRecords_per_image()][downloadResult.getFields().size()];
+	}
+	
+	public String[][] getTable()
+	{
+		return table;
+	}
+	
+	public void addValue(String value, int row, int col)
+	{
+		table[row][col] = value;
+		System.out.println(value)
+;	}
+	
+	public String getValue(int row, int col)
+	{
+		return table[row][col];
+	}
+	
+	
+}

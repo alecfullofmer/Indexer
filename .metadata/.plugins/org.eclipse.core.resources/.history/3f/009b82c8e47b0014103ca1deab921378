@@ -1,0 +1,23 @@
+package batch;
+
+import client.ClientFacade;
+import design.Batch;
+import design.Record;
+import design.field;
+
+
+public class BatchState {
+
+
+	private ClientFacade facade;
+	private Batch currBatch;
+	private Record currRecord;
+	private field currField;
+	
+	public BatchState(ClientFacade facade)
+	{
+		this.facade = facade;	
+	}
+	
+	
+}
